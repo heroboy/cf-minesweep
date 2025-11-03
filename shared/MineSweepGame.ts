@@ -69,29 +69,31 @@ export class ClientSideSweepGame
 			throw new Ignore('位置参数非法');
 		if (this.sceneData[pos]! <= 0)
 			throw new Ignore('非法位置');
-		let flagCount = 0;
-		let willRevealPos: number[] = [];
-		//let hasBomb = false;
+
+		let cc = this.countAround(pos);
+		if (cc.flag !== this.sceneData[pos])
+			throw new Ignore('非法位置:旗帜数量错误');
+
+		if (cc.unrevealed.length === 0)
+			throw new Ignore('非法位置:无可打开位置');
+		return cc;
+	}
+
+	private countAround(pos: number)
+	{
+		let count = 0;
+		let flag = 0;
+		let revealed = 0;
+		let unrevealed: number[] = [];
 		for (const next of this.adjancent8(pos))
 		{
-			if (this.isFlaged(next))
-			{
-				++flagCount;
-			}
-			else if (this.sceneData[next] === -1)
-			{
-				willRevealPos.push(next);
-				//if (this.isBomb(next)) hasBomb = true;
-			}
+			++count;
+			if (this.isFlaged(next)) ++flag;
+			if (this.isRevealed(next)) ++revealed;
+			if (!this.isRevealed(next) && !this.isFlaged(next))
+				unrevealed.push(next);
 		}
-		if (flagCount !== this.sceneData[pos])
-		{
-			throw new Ignore('非法位置:旗帜数量错误');
-		}
-		if (willRevealPos.length === 0)
-		{
-			throw new Ignore('非法位置:无可打开位置');
-		}
+		return { count, flag, revealed, unrevealed };
 	}
 
 	*adjancent8(pos: number)
@@ -245,7 +247,6 @@ export default class MineSweepGame extends ClientSideSweepGame
 				pu?.set(next, this.mineData[next]!);
 				this.sceneData[next] = this.mineData[next]!;
 			}
-
 		}
 	}
 
@@ -276,38 +277,11 @@ export default class MineSweepGame extends ClientSideSweepGame
 	}
 	revealAround(pos: number, pu?: ScenePartialUpdate)
 	{
-		if (this.gameover)
-			throw new Ignore('游戏已经结束');
-		if (pos < 0 || pos >= this.width * this.height)
-			throw new Ignore('位置参数非法');
-		if (this.sceneData[pos]! <= 0)
-			throw new Ignore('非法位置');
-		let flagCount = 0;
-		let willRevealPos: number[] = [];
-		let hasBomb = false;
-		for (const next of this.adjancent8(pos))
-		{
-			if (this.isFlaged(next))
-			{
-				++flagCount;
-			}
-			else if (this.sceneData[next] === -1)
-			{
-				willRevealPos.push(next);
-				if (this.isBomb(next)) hasBomb = true;
-			}
-		}
-		if (flagCount !== this.sceneData[pos])
-		{
-			throw new Ignore('非法位置:旗帜数量错误');
-		}
-		if (willRevealPos.length === 0)
-		{
-			throw new Ignore('非法位置:无可打开位置');
-		}
+		const {unrevealed} = this.checkRevealAround(pos);
+		const hasBomb = unrevealed.some(p => this.isBomb(p));
 		if (hasBomb)
 		{
-			for (const p of willRevealPos)
+			for (const p of unrevealed)
 			{
 				pu?.set(p, 0);
 				this.sceneData[p] = 0;
@@ -319,7 +293,7 @@ export default class MineSweepGame extends ClientSideSweepGame
 		}
 		else
 		{
-			for (const p of willRevealPos)
+			for (const p of unrevealed)
 			{
 				if (this.sceneData[p] === -1)
 				{
@@ -333,6 +307,7 @@ export default class MineSweepGame extends ClientSideSweepGame
 				this.gameover = 2;
 		}
 	}
+
 	private checkWin()
 	{
 		for (let i = 0; i < this.width * this.height; ++i)
