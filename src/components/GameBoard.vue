@@ -49,6 +49,10 @@ function getCellClass(pos: number)
 	{
 		n['revealed'] = true;
 		n['color-' + v] = true;
+		if (v >= 1)
+		{
+			n['can-reveal-around'] = true;
+		}
 	}
 	else
 	{
@@ -62,6 +66,7 @@ function getCellClass(pos: number)
 	if (props.loading || props.gameover)
 	{
 		delete n['clickable'];
+		delete n['can-reveal-around'];
 	}
 	if (props.gameover && props.mineData)
 	{
@@ -107,14 +112,14 @@ function getCellCenter(pos: number)
 	let yy = Math.floor(pos / props.width);
 	return { x: xx * 30 + 15, y: yy * 30 + 15 };
 }
-
+//todo: 上一个玩家点击的格子
 function isActiveCell(pos: number)
 {
 	return pos === props.activeCell;
 }
 
 defineExpose({
-	notify(pos: number | 'center', text: string|VNode, opt?: {
+	notify(pos: number | 'center', text: string | VNode, opt?: {
 		style?: CSSProperties,
 		duration?: number;
 	})
@@ -189,7 +194,8 @@ defineExpose({
 }
 
 .win-lose-mask {
-	font-size: 40px;
+	font-size: 80px;
+	font-weight: bold;
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -213,6 +219,9 @@ defineExpose({
 
 .clickable {
 	cursor: pointer;
+}
+.can-reveal-around {
+	cursor: alias;
 }
 
 .cell {
