@@ -151,11 +151,11 @@ export default class MineSweepObject extends DurableObject
 				}
 				catch (e: any)
 				{
-					sendOpError(ws, e.reason || '');
+					sendOpError(ws, msg.pos, e.reason || '');
 					return;
 				}
 				this.broadcast({ cmd: 'updategame', game: this.game.toJSON(), op: msg.cmd, pos: msg.pos, by: username, score });
-				send(ws, { cmd: 'opresult', success: true });
+				send(ws, { cmd: 'opresult', success: true, pos: msg.pos });
 				this.markGameDirty();
 				break;
 			default:
@@ -247,7 +247,7 @@ function send(ws: WebSocket, body: SC_CMD)
 	const str = JSON.stringify(body);
 	ws.send(str);
 }
-function sendOpError(ws: WebSocket, reason: string)
+function sendOpError(ws: WebSocket, pos: number, reason: string)
 {
-	send(ws, { cmd: 'opresult', success: false, reason });
+	send(ws, { cmd: 'opresult', success: false, reason, pos });
 }

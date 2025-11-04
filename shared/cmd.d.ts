@@ -47,6 +47,7 @@ interface CmdOpResult
 	cmd: 'opresult';
 	success: boolean;
 	reason?: string;
+	pos: number;
 }
 
 export type SC_CMD = CmdLoginOk | CmdListUsers | CmdAddUser | CmdRemoveUser | CmdUpdateGame | CmdOpResult;

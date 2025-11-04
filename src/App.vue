@@ -87,7 +87,7 @@ function processCmd(msg: SC_CMD)
 				if (msg.by && msg.pos != null)
 				{
 					let score: string = '';
-					if (msg.score!=null && msg.score > 0)
+					if (msg.score != null && msg.score > 0)
 					{
 						score = '+' + msg.score.toString();
 					}
@@ -99,7 +99,7 @@ function processCmd(msg: SC_CMD)
 			session.operating = false;
 			if (!msg.success)
 			{
-				boardRef.value?.notify(session.lastOpPos, msg.reason || '操作失败', { style: { color: 'red' } });
+				boardRef.value?.notify(msg.pos, msg.reason || '操作失败', { style: { color: 'red' } });
 			}
 			break;
 		case 'listusers':

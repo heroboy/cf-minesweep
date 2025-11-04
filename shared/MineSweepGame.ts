@@ -212,6 +212,23 @@ export default class MineSweepGame extends ClientSideSweepGame
 				}
 			} while (1);
 		}
+		
+		this.calcMineData();
+
+		this.sceneData = Array.from({ length });
+		this.sceneData.fill(-1);
+		this.v = 0;
+		this.gameover = 0;
+	}
+	//不是雷的格子，计算周围雷数
+	calcMineData()
+	{
+		const length = this.width * this.height;
+		for (let i = 0; i < length; ++i)
+		{
+			if (this.mineData[i] !== -1)
+				this.mineData[i] = 0;
+		}
 		for (let i = 0; i < length; ++i)
 		{
 			if (this.mineData[i] === -1)
@@ -223,11 +240,6 @@ export default class MineSweepGame extends ClientSideSweepGame
 				}
 			}
 		}
-
-		this.sceneData = Array.from({ length });
-		this.sceneData.fill(-1);
-		this.v = 0;
-		this.gameover = 0;
 	}
 
 	floodReveal(pos: number, pu?: ScenePartialUpdate)
@@ -260,6 +272,7 @@ export default class MineSweepGame extends ClientSideSweepGame
 	reveal(pos: number, pu?: ScenePartialUpdate)
 	{
 		this.checkReveal(pos);
+		//todo: 如果第一次点击是雷，重新生成地图，保证第一次点击安全
 		if (this.isBomb(pos))
 		{
 			pu?.set(pos, 0);
@@ -277,7 +290,7 @@ export default class MineSweepGame extends ClientSideSweepGame
 	}
 	revealAround(pos: number, pu?: ScenePartialUpdate)
 	{
-		const {unrevealed} = this.checkRevealAround(pos);
+		const { unrevealed } = this.checkRevealAround(pos);
 		const hasBomb = unrevealed.some(p => this.isBomb(p));
 		if (hasBomb)
 		{
