@@ -43,6 +43,19 @@ export class ClientSideSweepGame
 		g.timestamp = obj.timestamp;
 		return g;
 	}
+	clone()
+	{
+		const g = new ClientSideSweepGame();
+		g.id = this.id;
+		g.width = this.width;
+		g.height = this.height;
+		g.mineData = this.mineData ? this.mineData.slice() : undefined;
+		g.sceneData = this.sceneData.slice();
+		g.v = this.v;
+		g.gameover = this.gameover;
+		g.timestamp = this.timestamp;
+		return g;
+	}
 	checkFlag(pos: number)
 	{
 		if (this.gameover)

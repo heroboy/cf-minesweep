@@ -91,7 +91,7 @@ export default class MineSweepObject extends DurableObject
 		this.broadcast({ cmd: 'adduser', username }, server);
 		return new Response(null, { status: 101, webSocket: client });
 	}
-	webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): void | Promise<void> 
+	webSocketMessage(ws: WebSocket, message: string | ArrayBuffer)
 	{
 		if (typeof message !== 'string')
 		{
@@ -127,6 +127,7 @@ export default class MineSweepObject extends DurableObject
 			case 'flag':
 			case 'reveal':
 			case 'revealaround':
+				//await wait(1000);
 				let score = 0;
 				try
 				{
@@ -250,4 +251,9 @@ function send(ws: WebSocket, body: SC_CMD)
 function sendOpError(ws: WebSocket, pos: number, reason: string)
 {
 	send(ws, { cmd: 'opresult', success: false, reason, pos });
+}
+
+function wait(ms: number)
+{
+	return new Promise<void>(resolve => setTimeout(() => resolve(), ms));
 }

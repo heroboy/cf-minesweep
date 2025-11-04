@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { computed, customRef, markRaw, reactive, ref, shallowReactive } from 'vue';
+import { computed, customRef, markRaw, reactive, ref, shallowReactive, toRaw, triggerRef } from 'vue';
 import { fetchApi, connectWs } from './util';
 import { type CS_CMD, type SC_CMD } from '../shared/cmd';
 import GameSession from './GameSession';
@@ -11,7 +11,7 @@ const isConnecting = ref(false);
 const connectErrorMsg = ref('');
 const ws = ref<null | WebSocket>(null);
 const session = reactive(new GameSession());
-const game = computed(() => session.game);
+const game = computed(() => session.getPatchedGame());
 const boardRef = ref<InstanceType<typeof GameBoard> | null>(null);
 async function onClickConnect()
 {
@@ -96,7 +96,17 @@ function processCmd(msg: SC_CMD)
 			}
 			break;
 		case 'opresult':
-			session.operating = false;
+			if (session.waitFlagOps.length > 0)
+			{
+				//优先处理插旗操作结果
+				session.waitFlagOps.shift()!;
+				session.game = session.game!.clone();
+			}
+			else
+			{
+				session.operating = false;
+			}
+
 			if (!msg.success)
 			{
 				boardRef.value?.notify(msg.pos, msg.reason || '操作失败', { style: { color: 'red' } });
@@ -114,7 +124,6 @@ function processCmd(msg: SC_CMD)
 				if (i !== -1) session.userlist.splice(i, 1);
 			}
 			break;
-
 	}
 }
 function formatTime(t: number)
@@ -148,7 +157,6 @@ function onClickBoard(op: 'reveal' | 'flag' | 'revealAround', pos: number)
 			if (wrap(() => g.checkReveal(pos)))
 			{
 				session.operating = true;
-				session.lastOpPos = pos;
 				send({ cmd: 'reveal', pos: pos, v: g.v, id: g.id });
 			}
 			break;
@@ -156,16 +164,23 @@ function onClickBoard(op: 'reveal' | 'flag' | 'revealAround', pos: number)
 			if (wrap(() => g.checkRevealAround(pos)))
 			{
 				session.operating = true;
-				session.lastOpPos = pos;
 				send({ cmd: 'revealaround', pos: pos, v: g.v, id: g.id });
 			}
 			break;
 		case 'flag':
 			if (wrap(() => g.checkFlag(pos)))
 			{
-				session.operating = true;
-				session.lastOpPos = pos;
+				//session.operating = true;
+				let oldVersion: number = g.v;
+				let newValue: number;
+				newValue = g.sceneData[pos] === -2 ? -1 : -2;
+				session.waitFlagOps.push(markRaw({ pos, oldValue: g.sceneData[pos]!, oldVersion: oldVersion, newValue }));
+
 				send({ cmd: 'flag', pos: pos, v: g.v, id: g.id });
+
+				//g.sceneData[pos] = newValue;
+				//++g.v;
+				//session.game = session.game!.clone();
 			}
 			break;
 	}
@@ -174,6 +189,13 @@ function onClickBoard(op: 'reveal' | 'flag' | 'revealAround', pos: number)
 function send(msg: CS_CMD)
 {
 	ws.value?.send(JSON.stringify(msg));
+}
+
+function onClickRefresh()
+{
+	//triggerRef(game);
+	session.game = session.game!.clone();
+	console.log(toRaw(session));
 }
 </script>
 
@@ -186,7 +208,7 @@ function send(msg: CS_CMD)
 		<div v-if="connectErrorMsg" style="color:red">{{ connectErrorMsg }}</div>
 	</div>
 	<div v-if="ws && game">
-		<div>游戏id：{{ game.id }}-{{ game.v }}</div>
+		<div>游戏id：{{ game.id }}-{{ game.v }}, 等待回复的插旗操作：{{ session.waitFlagOps.length }}</div>
 		<div>游戏开始时间：{{ formatTime(game.timestamp) }}</div>
 		<div>
 			<button @click="send({ cmd: 'resetgame' })" :disabled="game.gameover === 0">重新开始</button>

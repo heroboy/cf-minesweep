@@ -48,6 +48,8 @@ interface CmdOpResult
 	success: boolean;
 	reason?: string;
 	pos: number;
+	//data?: number;
+	//version?: number;
 }
 
 export type SC_CMD = CmdLoginOk | CmdListUsers | CmdAddUser | CmdRemoveUser | CmdUpdateGame | CmdOpResult;
