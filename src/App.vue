@@ -211,7 +211,7 @@ function onClickRefresh()
 </script>
 
 <template>
-	<Example />
+	<!-- <Example /> -->
 	<div v-if="ws == null">
 		<div><input v-model="inputUserName" /> <button :disabled="isConnecting || !inputUserName"
 				@click="onClickConnect">连接</button>
