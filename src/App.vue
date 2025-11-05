@@ -1,11 +1,12 @@
 <script setup lang="tsx">
-import { computed, customRef, markRaw, reactive, ref, shallowReactive, toRaw, triggerRef } from 'vue';
+import { computed, customRef, markRaw, onUnmounted, reactive, ref, shallowReactive, toRaw, triggerRef } from 'vue';
 import { fetchApi, connectWs } from './util';
 import { type CS_CMD, type SC_CMD } from '../shared/cmd';
 import GameSession from './GameSession';
 import GameBoard from './components/GameBoard.vue';
 import { ClientSideSweepGame } from '../shared/MineSweepGame';
 import SingleGame from './SingleGame.vue';
+import Example from './components/Example.vue';
 const inputUserName = ref(localStorage.getItem('username') || '');
 const isConnecting = ref(false);
 const connectErrorMsg = ref('');
@@ -71,6 +72,16 @@ function initWs(_ws: WebSocket)
 		_ws.onclose = null;
 	}
 }
+
+onUnmounted(() =>
+{
+	if (ws.value)
+	{
+		ws.value.close();
+		ws.value = null;
+	}
+});
+
 function processCmd(msg: SC_CMD)
 {
 	console.log('recv:' + msg.cmd, msg);
@@ -200,6 +211,7 @@ function onClickRefresh()
 </script>
 
 <template>
+	<Example />
 	<div v-if="ws == null">
 		<div><input v-model="inputUserName" /> <button :disabled="isConnecting || !inputUserName"
 				@click="onClickConnect">连接</button>

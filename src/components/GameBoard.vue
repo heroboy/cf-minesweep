@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref, type CSSProperties, type VNode } from 'vue';
 import NotificationContainer from './NotificationContainer.vue';
-
+import Cell from './Cell.vue';
 
 interface IProps
 {
@@ -144,11 +144,15 @@ defineExpose({
 <template>
 	<div :class="{ 'game-board': true, loading: loading, win: props.gameover === 2 }">
 		<div class="row" v-for="row in BOARD_ROWS">
-			<div :class="getCellClass(pos)" v-for="pos in row" @click="onClickCell(pos)"
+			<!-- <div :class="getCellClass(pos)" v-for="pos in row" @click="onClickCell(pos)"
 				@mouseup.middle="onRevealAround(pos)"
 				@contextmenu.prevent="onFlagCell(pos)">
-
-			</div>
+			</div> -->
+			<Cell v-for="pos in row" :pos="pos" :data="sceneData[pos]!" :mine="mineData && mineData[pos]" :gameover="gameover || 0" :loading="loading!"
+			@reveal-around="onRevealAround"
+			@reveal="onClickCell"
+			@flag="onFlagCell"
+			/>
 		</div>
 		<transition name="mask">
 			<div class="game-board-mask" v-if="showMask" @contextmenu.prevent="">
@@ -160,7 +164,7 @@ defineExpose({
 		<NotificationContainer ref="notifyer" style="position: absolute;left: 0;top: 0;" />
 	</div>
 </template>
-<style>
+<style scoped>
 .game-board {
 	display: inline-block;
 	border: 2px solid #333;
@@ -217,123 +221,5 @@ defineExpose({
 	padding: 0;
 }
 
-.clickable {
-	cursor: pointer;
-}
-.can-reveal-around {
-	cursor: alias;
-}
 
-.cell {
-	width: 30px;
-	height: 30px;
-	border: 1px solid #999;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: bold;
-	background-color: #ddd;
-	box-sizing: border-box;
-	font-size: 14px;
-	margin: 0;
-	padding: 0;
-	position: relative;
-}
-
-.revealed {
-	background-color: #f0f0f0;
-}
-
-.mine {
-	background-color: #ff6666;
-}
-
-.win .mine {
-	background-color: aquamarine;
-}
-
-.mine::after {
-	content: "💣";
-}
-
-.flagged.mine::after {
-	font-size: 9px;
-	position: absolute;
-	right: 2px;
-	bottom: 2px;
-}
-
-.flagged {
-	background-color: #ffcc00;
-
-}
-
-.flagged::before {
-	content: "🚩"
-}
-
-.color-1 {
-	color: blue;
-}
-
-.color-2 {
-	color: green;
-}
-
-.color-3 {
-	color: red;
-}
-
-.color-4 {
-	color: darkblue;
-}
-
-.color-5 {
-	color: brown;
-}
-
-.color-6 {
-	color: teal;
-}
-
-.color-7 {
-	color: black;
-}
-
-.color-8 {
-	color: gray;
-}
-
-
-.color-1::before {
-	content: '1';
-}
-
-.color-2::before {
-	content: '2';
-}
-
-.color-3::before {
-	content: '3';
-}
-
-.color-4::before {
-	content: '4';
-}
-
-.color-5::before {
-	content: '5';
-}
-
-.color-6::before {
-	content: '6';
-}
-
-.color-7::before {
-	content: '7';
-}
-
-.color-8::before {
-	content: '8';
-}
 </style>
