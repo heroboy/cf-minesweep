@@ -14,6 +14,7 @@ const ws = ref<null | WebSocket>(null);
 const session = reactive(new GameSession());
 const game = computed(() => session.getPatchedGame());
 const boardRef = ref<InstanceType<typeof GameBoard> | null>(null);
+const activeCell = ref<number | null>(null);
 async function onClickConnect()
 {
 	if (isConnecting.value) return;
@@ -104,6 +105,11 @@ function processCmd(msg: SC_CMD)
 					}
 					boardRef.value?.notify(msg.pos, <b>click:{msg.by} <span style="font-size:1.5em">{score}</span></b>, {});
 				}
+				activeCell.value = msg.pos!;
+			}
+			else
+			{
+				activeCell.value = null;
 			}
 			break;
 		case 'opresult':
@@ -235,6 +241,7 @@ function onClickRefresh()
 			:gameover="game.gameover"
 			:mine-data="game.mineData"
 			:loading="session.operating"
+			:active-cell="activeCell"
 			@reveal="pos => onClickBoard('reveal', pos)"
 			@reveal-around="pos => onClickBoard('revealAround', pos)"
 			@flag="pos => onClickBoard('flag', pos)" />

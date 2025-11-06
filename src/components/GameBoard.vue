@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, type CSSProperties, type VNode } from 'vue';
+import { computed, provide, reactive, ref, toRef, type CSSProperties, type VNode } from 'vue';
 import NotificationContainer from './NotificationContainer.vue';
 import Cell from './Cell.vue';
 
@@ -11,7 +11,7 @@ interface IProps
 	mineData?: number[];
 	loading?: boolean;
 	gameover?: number;
-	activeCell?: number;
+	activeCell?: number | null;
 }
 const props = defineProps<IProps>();
 const emit = defineEmits<{
@@ -33,7 +33,8 @@ const BOARD_ROWS = computed(() =>
 	}
 	return rows;
 });
-
+provide('boardsize', { get width() { return props.width; }, get height() { return props.height; } });
+provide('activeCell', toRef(props, 'activeCell'));
 const showMask = computed(() =>
 {
 	return props.loading || props.gameover;
@@ -148,11 +149,11 @@ defineExpose({
 				@mouseup.middle="onRevealAround(pos)"
 				@contextmenu.prevent="onFlagCell(pos)">
 			</div> -->
-			<Cell v-for="pos in row" :pos="pos" :data="sceneData[pos]!" :mine="mineData && mineData[pos]" :gameover="gameover || 0" :loading="loading!"
-			@reveal-around="onRevealAround"
-			@reveal="onClickCell"
-			@flag="onFlagCell"
-			/>
+			<Cell v-for="pos in row" :pos="pos" :data="sceneData[pos]!" :mine="mineData && mineData[pos]"
+				:gameover="gameover || 0" :loading="loading!"
+				@reveal-around="onRevealAround"
+				@reveal="onClickCell"
+				@flag="onFlagCell" />
 		</div>
 		<transition name="mask">
 			<div class="game-board-mask" v-if="showMask" @contextmenu.prevent="">
@@ -220,6 +221,4 @@ defineExpose({
 	margin: 0;
 	padding: 0;
 }
-
-
 </style>

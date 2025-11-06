@@ -1,13 +1,30 @@
 <script setup lang="tsx">
-import { ref } from 'vue';
+import { provide, reactive, readonly, ref } from 'vue';
 import Cell from './Cell.vue';
 const data = ref(0);
 const mine = ref<undefined | number>(undefined);
+function toggleOpen()
+{
+	mine.value = undefined;
+	if (data.value < 0)
+	{
+		data.value = 3;
+	}
+	else
+	{
+		data.value = -1;
+	}
+}
+const width = ref(10);
+const height = ref(10);
+provide('boardsize', readonly({ get width() { return width.value; }, get height() { return height.value; } }));
 </script>
 <template>
 	<div>
 		<label>data: <input v-model.number="data" /></label>
 		<label>mine: <input v-model.number="mine" /></label>
+		<button @click="toggleOpen">toggle open</button>
+		<button @click="++width">width+1</button>
 	</div>
 	<Cell :pos="0" :gameover="mine != null ? 1 : 0" :data="data" :mine="mine" :loading="false" />
 </template>
