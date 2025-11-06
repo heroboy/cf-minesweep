@@ -1,14 +1,19 @@
 
 import ScenePartialUpdate from './ScenePartialUpdate';
+export const HARD_GAME_SETTING = {
+	width: 30,
+	height: 16,
+	mine: 99
+};
 export const NORMAL_GAME_SETTING = {
-	width: 24,
-	height: 18,
-	mine: 60
+	width: 16,
+	height: 16,
+	mine: 40
 };
 export const EASY_GAME_SETTING = {
-	width: 10,
-	height: 10,
-	mine: 6
+	width: 9,
+	height: 9,
+	mine: 10
 };
 const STORAGE_VERSION = 0;
 

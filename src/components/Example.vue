@@ -21,6 +21,13 @@ provide('boardsize', readonly({ get width() { return width.value; }, get height(
 </script>
 <template>
 	<div>
+		<div class="split-button">
+			<button class="button">aaaaa</button>
+			<button class="dropdown">&#9660;</button>
+		</div>
+
+	</div>
+	<div>
 		<label>data: <input v-model.number="data" /></label>
 		<label>mine: <input v-model.number="mine" /></label>
 		<button @click="toggleOpen">toggle open</button>
@@ -30,6 +37,18 @@ provide('boardsize', readonly({ get width() { return width.value; }, get height(
 </template>
 
 <style scoped>
+.split-button
+{
+	
+}
+.split-button .button{
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.split-button .dropdown {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
 .box {
 	width: 30px;
 	height: 30px;

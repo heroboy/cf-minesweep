@@ -76,19 +76,19 @@ const backgroundColor = computed<string>(() =>
 		@contextmenu.prevent="emit('flag', pos)"
 		@mouseup.middle="emit('reveal-around', pos)">
 
-	<transition name="open-card">
+		<transition name="open-card">
 			<div :class="{ ['color-' + data]: true, revealed: true }"
-			:style="{ transitionDelay: `${Math.floor((distFromActive || 0) * 30)}ms` }" v-if="data >= 0">
-			{{ data > 0 ? data : '' }}
-	</div>
-	</transition>
+				:style="{ transitionDelay: `${Math.floor((distFromActive || 0) * 30)}ms` }" v-if="data >= 0">
+				{{ data > 0 ? data : '' }}
+			</div>
+		</transition>
 
-	<div :class="{ 'both-flag-mine': hasFlag && hasMine, mine: true }" v-if="hasMine"><span>💣</span></div>
-	<transition name="flag-transition">
-		<div :class="{ 'both-flag-mine': hasFlag && hasMine, flagged: true }" v-if="hasFlag">
-			<span>🚩</span>
-		</div>
-	</transition>
+		<div :class="{ 'both-flag-mine': hasFlag && hasMine, mine: true }" v-if="hasMine"><span>💣</span></div>
+		<transition name="flag-transition">
+			<div :class="{ 'both-flag-mine': hasFlag && hasMine, flagged: true }" v-if="hasFlag">
+				<span>🚩</span>
+			</div>
+		</transition>
 	</div>
 </template>
 <style>
@@ -194,8 +194,8 @@ const backgroundColor = computed<string>(() =>
 
 .flag-transition-enter-active,
 .flag-transition-leave-active {
-	transition: all 100ms;
-
+	transition-property: all;
+	transition-duration: 100ms;
 	transition-timing-function: cubic-bezier(0.265, 0.980, 1.000, 1.650);
 }
 
@@ -213,12 +213,14 @@ const backgroundColor = computed<string>(() =>
 	backface-visibility: hidden;
 }
 
-.open-card-leave-active{
+.open-card-leave-active {
 	transition-property: none;
 	transition-duration: 0ms;
 	transition-delay: 0;
 }
-.open-card-leave-to{
+
+.open-card-leave-from,
+.open-card-leave-to {
 	transform: rotateY(0deg);
 }
 

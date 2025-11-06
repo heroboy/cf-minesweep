@@ -57,6 +57,7 @@ export type SC_CMD = CmdLoginOk | CmdListUsers | CmdAddUser | CmdRemoveUser | Cm
 interface CmdResetGame
 {
 	cmd: 'resetgame';
+	mode?: 'easy' | 'normal' | 'hard';
 }
 
 interface CmdFlag

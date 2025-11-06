@@ -1,7 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import { decrypt } from "./encrypt";
 import { CS_CMD, SC_CMD } from '../shared/cmd';
-import MineSweepGame, { NORMAL_GAME_SETTING } from "../shared/MineSweepGame";
+import MineSweepGame, { EASY_GAME_SETTING, HARD_GAME_SETTING, NORMAL_GAME_SETTING } from "../shared/MineSweepGame";
 import ScenePartialUpdate from "../shared/ScenePartialUpdate";
 interface IUserData
 {
@@ -119,7 +119,14 @@ export default class MineSweepObject extends DurableObject
 		switch (msg.cmd)
 		{
 			case 'resetgame':
-				this.game.generate(NORMAL_GAME_SETTING);
+				let setting:any;
+				if (msg.mode === 'easy')
+					setting = EASY_GAME_SETTING;
+				else if (msg.mode === 'hard')
+					setting = HARD_GAME_SETTING;
+				else
+					setting = NORMAL_GAME_SETTING;
+				this.game.generate(setting);
 				this.broadcast({ cmd: 'updategame', game: this.game.toJSON(), op: msg.cmd, by: username });
 				this.markGameDirty();
 				log(`reset game, id=${this.game.id}`);

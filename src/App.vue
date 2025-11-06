@@ -7,6 +7,7 @@ import GameBoard from './components/GameBoard.vue';
 import { ClientSideSweepGame } from '../shared/MineSweepGame';
 import SingleGame from './SingleGame.vue';
 import Example from './components/Example.vue';
+const resetMode = ref<'easy' | 'normal' | 'hard'>('hard');
 const inputUserName = ref(localStorage.getItem('username') || '');
 const isConnecting = ref(false);
 const connectErrorMsg = ref('');
@@ -217,7 +218,6 @@ function onClickRefresh()
 </script>
 
 <template>
-	<!-- <Example /> -->
 	<div v-if="ws == null">
 		<div><input v-model="inputUserName" /> <button :disabled="isConnecting || !inputUserName"
 				@click="onClickConnect">连接</button>
@@ -229,7 +229,12 @@ function onClickRefresh()
 		<div>游戏id：{{ game.id }}-{{ game.v }}, 等待回复的插旗操作：{{ session.waitFlagOps.length }}</div>
 		<div>游戏开始时间：{{ formatTime(game.timestamp) }}</div>
 		<div>
-			<button @click="send({ cmd: 'resetgame' })" :disabled="game.gameover === 0">重新开始</button>
+			<label>难度 <select v-model="resetMode">
+				<option value="easy">简单</option>
+				<option value="normal">普通</option>
+				<option value="hard">困难</option>
+			</select></label>
+			<button @click="send({ cmd: 'resetgame', mode: resetMode })" :disabled="game.gameover === 0">重新开始</button>
 			<button @click="ws.close()">close</button>
 		</div>
 
